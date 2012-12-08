@@ -27,6 +27,7 @@ import net.citizensnpcs.command.CommandManager;
 import net.citizensnpcs.command.CommandManager.CommandInfo;
 import net.citizensnpcs.command.Injector;
 import net.citizensnpcs.command.exception.CommandUsageException;
+import net.citizensnpcs.command.exception.NoPermissionsException;
 import net.citizensnpcs.command.exception.ServerCommandException;
 import net.citizensnpcs.command.exception.UnhandledCommandException;
 import net.citizensnpcs.command.exception.WrappedCommandException;
@@ -129,7 +130,7 @@ public class CitiTrader extends JavaPlugin {
 
             String modifier = args.length > 0 ? args[0] : "";
 
-            if (!citicommands.hasCommand(split[0], modifier) && !modifier.isEmpty()) {
+            if (!citicommands.hasCommand(cmd, modifier) && !modifier.isEmpty()) {
                 return suggestClosestModifier(sender, split[0], modifier);
                 //return true;
             }
@@ -139,7 +140,7 @@ public class CitiTrader extends JavaPlugin {
             // flexibility (ie. adding more context in the future without
             // changing everything)
             try {
-                citicommands.execute(split, sender, sender, npc);
+                citicommands.execute(cmd, args, sender, sender, npc);
             } catch (ServerCommandException ex) {
                 Messaging.sendTr(sender, Messages.COMMAND_MUST_BE_INGAME);
             } catch (CommandUsageException ex) {
@@ -151,6 +152,8 @@ public class CitiTrader extends JavaPlugin {
                 return false;
             } catch (CommandException ex) {
                 Messaging.sendError(sender, ex.getMessage());
+            } catch (NoPermissionsException ex){
+            	Messaging.sendError(sender, ex.getMessage());
             }
         } catch (NumberFormatException ex) {
             Messaging.sendErrorTr(sender, Messages.COMMAND_INVALID_NUMBER);
@@ -166,14 +169,9 @@ public class CitiTrader extends JavaPlugin {
     
     private boolean suggestClosestModifier(CommandSender sender, String command, String modifier) {
         int minDist = Integer.MAX_VALUE;
-        String closest = "";
-        for (String string : citicommands.getAllCommandModifiers(command)) {
-            int distance = StringHelper.getLevenshteinDistance(modifier, string);
-            if (minDist > distance) {
-                minDist = distance;
-                closest = string;
-            }
-        }
+        
+        String closest = citicommands.getClosestCommandModifier(command, modifier);
+        
         if (!closest.isEmpty()) {
             sender.sendMessage(ChatColor.GRAY + Messaging.tr(Messages.UNKNOWN_COMMAND));
             sender.sendMessage(StringHelper.wrap(" /") + command + " " + StringHelper.wrap(closest));

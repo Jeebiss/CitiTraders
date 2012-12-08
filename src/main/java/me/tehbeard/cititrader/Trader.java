@@ -115,16 +115,16 @@ public class Trader implements Listener {
                     return totaltrader;
                 }
             });
-            metrics.start();
-            CitiTrader.self.getLogger().info("Metrics Started.");
+//            metrics.start();
+//            CitiTrader.self.getLogger().info("Metrics Started.");
         } catch (IOException e) {
             CitiTrader.self.getLogger().info("Failed:");
             e.printStackTrace();
         }
 
-        if (CitiTrader.self.getConfig().getBoolean("debug.versioncheck", true)) {
-            CitiTrader.self.checkVersion();
-        }
+//        if (CitiTrader.self.getConfig().getBoolean("debug.versioncheck", true)) {
+//            CitiTrader.self.checkVersion();
+//        }
     }
 
     @EventHandler
